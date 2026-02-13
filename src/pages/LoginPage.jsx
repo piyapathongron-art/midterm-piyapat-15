@@ -45,7 +45,7 @@ function LoginPage() {
         }
 
     }
-
+    //if login
     if(user){
        return <div className='loginpage h-200 flex flex-col justify-center items-center'>
         
@@ -58,7 +58,7 @@ function LoginPage() {
             </form>
         </div>
     }
-
+    //if not login
     return (
         <div className='loginpage h-200 flex flex-col justify-center items-center'>
         

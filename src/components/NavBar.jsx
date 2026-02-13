@@ -16,6 +16,7 @@ function NavBar() {
     const user = useUserInfo((state)=>state.user)
     // console.log(user)
 
+    //if login
     if(user){
         return <ul className='bg-gray-600 h-15 flex items-center justify-center text-2xl gap-20 text-white shadow-2xl'>
             <NavLink to="/" className={({isActive})=>activeLink(isActive)}> <li>Profile</li></NavLink>
@@ -23,7 +24,7 @@ function NavBar() {
             <NavLink to="todolist" className={({isActive})=>activeLink(isActive)}> <li>To do List</li></NavLink>
         </ul>
     }
-
+    //if not login
   return (
     <ul className='bg-gray-600 h-15 flex items-center justify-center text-2xl gap-20 text-white shadow-2xl'>
             <NavLink to="/" className={({isActive})=>activeLink(isActive)}> <li>Login</li></NavLink>

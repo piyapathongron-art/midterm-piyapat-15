@@ -15,7 +15,7 @@ function TodoListPage() {
     const token = useUserInfo((state) => state.token)
     const navigate = useNavigate()
 
-    // console.log(user)
+//   call usertodolist
 
     useEffect(() => {
         fetchUserTodoList()
@@ -40,18 +40,13 @@ function TodoListPage() {
         }
     }
 
-
     const hdlChange = (e) => {
         const { name, value } = e.target;
         setNewList((prev) => ({ ...prev, [name]: value }))
     }
 
-    const hdlChangeUpdate = (e) => {
-        const { name, value } = e.target
-        setEditContent((prev) => ({ ...prev, [name]: value }))
-    }
 
-
+    //post new list
     async function hdlSubmitNewList(e) {
         e.preventDefault()
         if (!newlist.content.trim()) {
@@ -68,7 +63,7 @@ function TodoListPage() {
         }
     }
 
-
+    //delete list
     async function hdlDelList(e) {
         try {
             const res = await axios.delete(`https://drive-accessible-pictures-send.trycloudflare.com/todos/15/${e.target.id}`)
@@ -79,6 +74,7 @@ function TodoListPage() {
         }
     }
 
+    //update list
     async function hdlUpdate(e) {
         e.preventDefault()
 
@@ -93,12 +89,13 @@ function TodoListPage() {
             fetchUserTodoList()
             toast.success('แก้ไขสำเร็จ')
         } catch (error) {
+            toast.success(`แก้ไขไม่สำเร็จ ${error}`)
             console.log(error)
         }
     }
 
-    console.log(user)
-
+   
+    //content
     if (loading) {
         return (
             <LoadingPage />
@@ -106,6 +103,7 @@ function TodoListPage() {
     }
     return (
         <>
+
             <div className="todolistpage h-220 flex justify-center items-center flex-col ">
                 <div className="todobox flex flex-col bg-gray-800 text-white  p-8 rounded-md gap-5 w-120 h-100 ">
                     <h1 className='text-3xl'>My Todo</h1>
@@ -125,8 +123,8 @@ function TodoListPage() {
                                 <input type="checkbox" name="isdone" onChange={e => hdlChange(e, 'check')} defaultChecked={el.isdone} id={el?.id} />
 
                                 <form className="listcontent w-75 px-5 flex" id={el.id} onSubmit={hdlUpdate}>
-                                    <input type="text" name='content' value={el.content} onChange={hdlChangeUpdate} />
-                                    <button className='bg-gray-500 px-3 mr-5 rounded-2xl cursor-pointer ml-10 '>Edit</button>
+                                    <p className='w-50'>{el.content}</p>
+                                    <button className='bg-gray-500 px-3 mr- rounded-2xl cursor-pointer ml-10 '>Edit</button>
                                 </form>
                                 <button className='cursor-pointer text-red-500' id={el.id} onClick={(e) => hdlDelList(e)}>X</button>
                             </div>
