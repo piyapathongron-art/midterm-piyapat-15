@@ -1,0 +1,141 @@
+import React, { useEffect, useState } from 'react'
+import useUserInfo from '../stores/userInfo'
+import axios from 'axios'
+import { useNavigate } from 'react-router'
+import { toast } from 'react-toastify'
+import LoadingPage from './LoadingPage'
+
+function TodoListPage() {
+    const [user, setUser] = useState([])
+    const [newlist, setNewList] = useState({
+        content: ""
+    })
+    const [editContent,setEditContent] = useState({
+        content:"",
+    })
+    const [loading, setLoading] = useState(true)
+    const token = useUserInfo((state) => state.token)
+    const navigate = useNavigate()
+
+    // console.log(user)
+
+    useEffect(() => {
+        fetchUserTodoList()
+    }, [])
+
+    async function fetchUserTodoList() {
+        try {
+            const res = await axios.get('https://drive-accessible-pictures-send.trycloudflare.com/todosv2', {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+            const { data } = res
+            setUser(data)
+            // console.log(data)
+        } catch (error) {
+            console.log(error)
+            navigate('/')
+            toast.error('กรุณาล็อกอิน')
+        } finally {
+            setLoading(false)
+        }
+    }
+
+
+    const hdlChange = (e) => {
+        const { name, value } = e.target;
+        setNewList((prev) => ({ ...prev, [name]: value }))
+    }
+
+    const hdlChangeUpdate = (e) =>{
+        const {name, value} =e.target
+        setEditContent((prev)=>({...prev,[name]:value}))
+    }
+
+
+    async function hdlSubmitNewList(e) {
+        e.preventDefault()
+        if (!newlist.content.trim()) {
+            return alert("check your input")
+        }
+        try {
+            const res = await axios.post('https://drive-accessible-pictures-send.trycloudflare.com/todos/15', newlist)
+            setNewList({ content: "" })
+            fetchUserTodoList()
+            console.log(res)
+            toast.success('เพิ่มรายการสำเร็จ')
+        } catch (error) {
+
+        }
+    }
+
+
+    async function hdlDelList(e) {
+        try {
+            const res = await axios.delete(`https://drive-accessible-pictures-send.trycloudflare.com/todos/15/${e.target.id}`)
+            fetchUserTodoList()
+            console.log(res)
+            toast.success('ลบรายการสำเร็จ')
+        } catch (error) {
+        }
+    }
+
+    async function hdlUpdate(e) {
+        e.preventDefault()
+        try {
+            console.log(e.target.id)
+            const res = await axios.patch(`https://drive-accessible-pictures-send.trycloudflare.com/todos/15/${e.target.id}`,editContent)
+            console.log(res)
+            toast.success('แก้ไขสำเร็จ')
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+
+    if (loading) {
+        return (
+            <LoadingPage />
+        )
+    }
+    return (
+        <>
+            <div className="todolistpage h-220 flex justify-center items-center flex-col ">
+                <div className="todobox flex flex-col bg-gray-800 text-white  p-8 rounded-md gap-5 w-120 h-100 ">
+                    <h1 className='text-3xl'>My Todo</h1>
+
+                    {/* create new todolist */}
+                    <form className="newtaskbox " onSubmit={hdlSubmitNewList} >
+                        <input type="text" placeholder='new task' name="content" onChange={hdlChange} value={newlist.content} className='w-80.5 mr-10' />
+                        <button className='bg-blue-400 p-1 px-3 rounded-xl mb-3 cursor-pointer active:bg-blue-600'>Add</button>
+                        <hr className='text-gray-600' />
+                    </form>
+
+                    {/* fieldlist */}
+                    <div className="list overflow-auto px-5">
+                        {user.map(el => (
+                            <div className="list flex justify-between my-5" key={el.id}>
+
+                                <input type="checkbox" name="isdone" defaultChecked={el.isdone} id={el?.id} />
+
+                                <form className="listcontent w-75 px-5 flex" id={el.id} onSubmit={hdlUpdate}>
+                                    <input type="text" name='content' value={el.content} onChange={hdlChangeUpdate}/>
+                                <button className='bg-gray-500 px-3 mr-5 rounded-2xl cursor-pointer ml-10 '>Edit</button>
+                                </form>
+                                <button className='cursor-pointer text-red-500' id={el.id} onClick={(e) => hdlDelList(e)}>X</button>
+                            </div>
+                        ))}
+
+                    </div>
+
+
+                </div>
+                <pre className='text-white'>{JSON.stringify(user, null, 2)}</pre>
+                <pre className='text-white'>{JSON.stringify(editContent, null, 2)}</pre>
+            </div>
+        </>
+    )
+}
+
+export default TodoListPage
